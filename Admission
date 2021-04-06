@@ -1,0 +1,176 @@
+#include <iostream>
+#include <map>
+#include <vector>
+#include <string>
+#include <algorithm>
+#include <set>
+
+struct Student {
+    std::string name, surname;
+    int day, mon, year, score, number_of_institutions;
+    std::vector<std::string> institutions;
+    Student() {
+        std::cin >> name >> surname >> day >> mon >> year >> score >> number_of_institutions;
+        institutions.resize(number_of_institutions);
+        for (int i = 0; i < institutions.size(); ++i)
+            std::cin >> institutions[i];
+    }// конструктор
+
+    friend std::ostream &operator << (std::ostream & s,const Student &St) {
+        s << St.name << " " << St.surname << " " << St.day<< " " << St.mon<< " " << St.year<< " " << St.score << " " << St.number_of_institutions << " ";
+        for(auto i : St.institutions){
+            s << i << " ";
+        }
+        return s;
+    }
+    friend std::ostream& operator << (std::ostream& s, const std::vector<Student> &allStudents) {
+        for (auto St : allStudents) {
+            s << St << "\n";
+        }
+        return s;
+    }
+
+    static bool appPred(const Student& lhv,const Student &rhv ){
+        if(lhv.score > rhv.score){
+            return true;
+        }
+        else if(lhv.score < rhv.score) {
+            return false;
+        }
+        if(lhv.surname < rhv.surname){
+            return true;
+        }
+        else if (rhv.surname < lhv.surname) {
+            return false;
+        }
+        if(lhv.name < rhv.name){
+            return true;
+        }
+        else if (lhv.name > rhv.name) {
+            return false;
+        }
+        if(lhv.year < rhv.year){
+            return true;
+        }
+        else if (lhv.year > rhv.year) {
+            return false;
+        }
+        if(lhv.mon < rhv.mon){
+            return true;
+        }
+        else if (lhv.mon > rhv.mon) {
+            return false;
+        }
+        if(lhv.day < rhv.day){
+            return true;
+        }
+        else if (lhv.day > rhv.day) {
+            return false;
+        }
+        return false;
+    }
+    static bool appPredNoScore(const Student& lhv,const Student &rhv ){
+        if(lhv.surname < rhv.surname){
+            return true;
+        }
+        else if (rhv.surname < lhv.surname) {
+            return false;
+        }
+        if(lhv.name < rhv.name){
+            return true;
+        }
+        else if (lhv.name > rhv.name) {
+            return false;
+        }
+        if(lhv.year < rhv.year){
+            return true;
+        }
+        else if (lhv.year > rhv.year) {
+            return false;
+        }
+        if(lhv.mon < rhv.mon){
+            return true;
+        }
+        else if (lhv.mon > rhv.mon) {
+            return false;
+        }
+        if(lhv.day < rhv.day){
+            return true;
+        }
+        else if (lhv.day > rhv.day) {
+            return false;
+        }
+        return false;
+    }
+};
+
+int main() {
+    int n, m;
+    std::map<std::string, unsigned int> UniCountMap;
+    std::cin >> n;
+
+    for (int i = 0; i < n; i++) {
+        std::string uni;
+        int places;
+        std::cin >> uni;
+        std::cin >> places;  // считываем введенные значения
+        UniCountMap.insert(std::make_pair(uni, places));
+    }
+/**/
+    std::vector<Student> StudentVector;
+
+    std::cin >> m;
+    StudentVector.reserve(m);
+    for(int i = 0; i < m; i++){
+        StudentVector.emplace_back(Student());
+    }
+
+    std::sort(std::begin(StudentVector),std::end(StudentVector),Student::appPred);
+
+    std::map<std::string, std::vector<Student>> final;
+
+    for(auto i : UniCountMap){
+        final[i.first].clear();
+    }
+
+    for (auto &i : StudentVector) {
+        for (auto &j : i.institutions){
+            if (UniCountMap[j] > 0) {
+                --UniCountMap[j];
+                final[j].push_back(i);
+                break;
+            }
+        }
+
+    }
+    for (auto& it : final) {
+        std::sort(std::begin(it.second), std::end(it.second), Student::appPredNoScore);
+    }
+
+    for (const auto& it : final) {
+
+        std::cout << it.first << '\t';
+        for (auto i : it.second) {
+
+            std::cout << i.name << ' ' << i.surname << '\t';
+
+        }
+        std::cout << '\n';
+
+    }
+    return 0;
+}
+
+/*
+3
+MSU 1
+HSE 2
+MIPT 100
+5
+Ivan Ivanov 1 1 1900 100 1 HSE
+Petr Petrov 2 1 1900 90 1 HSE
+Alexander Sidorov 3 1 1900 110 2 MIPT HSE
+Ivan Petrov 3 1 1900 100 2 HSE MIPT
+Petr Ivanov 4 1 1900 80 1 HSE
+*/
+
